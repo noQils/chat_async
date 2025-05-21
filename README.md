@@ -14,3 +14,19 @@ As explained in the previous explanation on how the `server.rs` and `client.rs` 
 ![alt text](image-2.png)
 
 For example, in the picture above, firstly in the first client terminal (second from left most terminal) the user typed `"this is client 1 typing"` and so that exact text is broadcasted and displayed to all clients, including the first client terminal, which is why there are two texts of `"this is client 1 typing"` in the first client terminal, first one being the input typed by the user and the second one being the message broadcasted by the server and displayed by the client to the user.
+
+## Experiment 2.2: Modifying Websocket Port
+
+### Original `server.rs`:
+![alt text](image-5.png)
+
+### Modified `server.rs`:
+![alt text](image-4.png)
+
+### Original `client.rs`:
+![alt text](image-6.png)
+
+### Modified `client.rs`:
+![alt text](image-3.png)
+
+The websocket connection between client and server requires both ends to use matching port numbers for successful communication. In the original code, the connection was established on port 2000, while the modified version now uses port 8080. This change needed to be made in two critical locations to maintain proper functionality. First, in the `client.rs` file, the connection URI was updated to `ws://127.0.0.1:8080` where the ClientBuilder specifies the websocket endpoint. Second, in server.rs, the TcpListener was modified to bind to `127.0.0.1:8080` to ensure it listens on the same port that clients are attempting to connect to. The websocket protocol (ws://) remains consistent between both files as it's the standard protocol for unencrypted websocket connections. This modification demonstrates how the port number serves as a coordination point between client and server implementations, where both must agree on the same port number to establish successful communication while the protocol (ws://) defines the communication method. The `Cargo.toml` dependencies remained unchanged as they provide the underlying websocket functionality regardless of the specific port being used.
