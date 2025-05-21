@@ -11,24 +11,22 @@ async fn handle_connection(
     mut ws_stream: WebSocketStream<TcpStream>,
     bcast_tx: Sender<String>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    // Subscribe to the broadcast channel
     let mut bcast_rx = bcast_tx.subscribe();
+    
+    // Send welcome message
+    ws_stream.send(Message::text(format!("{} - From server: Welcome to chat! Type a message", addr))).await?;
 
-    // Continuous loop to handle both incoming and outgoing messages
     loop {
         tokio::select! {
-            // Handle incoming messages from the client
             Some(msg) = ws_stream.next() => {
                 let msg = msg?;
                 if let Some(text) = msg.as_text() {
-                    // Broadcast the received message to all clients
-                    let _ = bcast_tx.send(text.to_string());
+                    let formatted_msg = format!("{}: {}", addr, text);
+                    println!("From client {}: {}", addr, text);
+                    let _ = bcast_tx.send(formatted_msg);
                 }
             }
-
-            // Handle outgoing messages from the broadcast channel
             Ok(msg) = bcast_rx.recv() => {
-                // Send the broadcast message to this client
                 ws_stream.send(Message::text(msg)).await?;
             }
         }

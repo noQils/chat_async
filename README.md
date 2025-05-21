@@ -30,3 +30,21 @@ For example, in the picture above, firstly in the first client terminal (second 
 ![alt text](image-3.png)
 
 The websocket connection between client and server requires both ends to use matching port numbers for successful communication. In the original code, the connection was established on port 2000, while the modified version now uses port 8080. This change needed to be made in two critical locations to maintain proper functionality. First, in the `client.rs` file, the connection URI was updated to `ws://127.0.0.1:8080` where the ClientBuilder specifies the websocket endpoint. Second, in server.rs, the TcpListener was modified to bind to `127.0.0.1:8080` to ensure it listens on the same port that clients are attempting to connect to. The websocket protocol (ws://) remains consistent between both files as it's the standard protocol for unencrypted websocket connections. This modification demonstrates how the port number serves as a coordination point between client and server implementations, where both must agree on the same port number to establish successful communication while the protocol (ws://) defines the communication method. The `Cargo.toml` dependencies remained unchanged as they provide the underlying websocket functionality regardless of the specific port being used.
+
+## Experiment 2.3: Adding Client Identification
+
+### `server.rs` before client identification:
+![alt text](image-7.png)
+
+### `server.rs` after client identification:
+![alt text](image-8.png)
+
+The modification enhances the chat system by adding client identification using IP addresses and port numbers. In the server implementation, I made two key changes to achieve this. First, I added a welcome message that gets sent immediately when a client connects, which helps users understand they've successfully joined the chat. Second, I modified the message broadcasting format to include the sender's SocketAddr (IP:port) before each message.
+
+![alt text](image-9.png)
+
+The server now formats messages as "IP:PORT: MESSAGE" before broadcasting them to all clients. This provides valuable context about who sent each message, which is particularly important in a multi-client environment. The server also logs these messages with the same format to its console, helping with debugging and monitoring.
+
+The client code didn't need modification because it simply displays whatever messages it receives from the server. Since the server now sends formatted messages including the sender information, clients automatically show this extra context. This demonstrates how the server can enrich messages before broadcasting them to all connected clients.
+
+The implementation uses Rust's standard SocketAddr type which automatically provides both IP and port information. This solution provides basic identification while maintaining the simplicity of the original code, serving as a foundation for more advanced features like usernames or authentication in future iterations.
